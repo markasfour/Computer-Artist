@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
+#include "rectangle.h"
+#include "picture.h"
 
 using namespace std;
 using namespace cv;
