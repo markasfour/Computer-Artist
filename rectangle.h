@@ -8,21 +8,22 @@ using namespace cv;
 
 struct my_rectangle
 {
-	Point position;
-	Size size;
+	Point p1;
+	Point p2;
 	Scalar color;
 	float transparency;
 
 	my_rectangle()
 	{
-		position = Point(0, 0);
-		size = Size(0, 0);
+		p1 = Point(0, 0);
+		p2 = Point(0, 0);
 		color = Scalar(0, 0, 0);
+		transparency = 0.0;
 	}
-	my_rectangle(Point p, Size s, Scalar c, float t)
+	my_rectangle(Point a, Point b, Scalar c, float t)
 	{
-		position = p;
-		size = s; 
+		p1 = a;
+		p2 = b; 
 		color = c;
 		transparency = t;
 	}
