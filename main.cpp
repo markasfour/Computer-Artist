@@ -75,11 +75,45 @@ int main (int argc, char** argv)
 		cout << "Number of rectangles = " << k << endl;
 		for (int n = 0; n < 100; n++)
 		{
+			//calculate image fitness level for all in population
 			for (int i = 0; i < POPULATION; i++)
 			{
 				current.at(i).fitness = getFitness(current.at(i), mainImage);
 				cout << current.at(i).fitness << endl;
 			}
+
+			float bestFitness = 0;
+			int bestPic;
+
+			//select best image generated
+			for (int i = 0; i < POPULATION; i++)
+			{
+				if (current.at(i).fitness > bestFitness)
+				{
+					bestFitness = current.at(i).fitness;
+					bestPic = i;
+				}
+			}
+			cout << "Best pic = " << bestPic << " with fitness = " << current.at(bestPic).fitness << endl;
+			
+			//generate new population by mutating the best image
+			my_rectangle R = current.at(bestPic).rectangles.at(current.at(bestPic).rectangles.size() - 1);
+			for (int i = 0; i < current.size(); i++)
+			{
+				if (i != bestPic)
+				{
+					current.at(i) = current.at(bestPic);
+					R.p1 += Point(rand()%5-5/2, rand()%5-5/2);
+					R.p2 += Point(rand()%5-5/2, rand()%5-5/2);
+					R.color += Scalar(rand() % 10 - 10 / 2, rand() % 10 - 10 / 2, rand() % 10 - 10 / 2);
+					Mat buf(mainImage.rows, mainImage.cols, CV_8UC3, Scalar(0,0,0)) ;
+					bestPicture.img.copyTo(buf) ;																		
+					rectangle(buf , R.p1 , R.p2 , R.color, -1, 8, 0) ;
+					current.at(i).img = buf;
+					current.at(i).rectangles.at(current.at(i).rectangles.size() - 1) = R;
+				}
+			}
+
 		}
 	}
 	
