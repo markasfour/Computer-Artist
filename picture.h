@@ -4,6 +4,7 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include "rectangle.h"
+#include "circle.h"
 
 using namespace std;
 using namespace cv;
@@ -13,6 +14,7 @@ struct picture
 	Mat img;
 	float fitness;
 	vector <my_rectangle> rectangles;
+	vector <my_circle> circles;
 
 	picture()
 	{
@@ -26,6 +28,12 @@ struct picture
 		fitness = f;
 		rectangles = r;
 	};
+	picture(Mat i, float f, vector <my_circle> c)
+	{
+		img = i;
+		fitness = f;
+		circles = c;
+	}
 };
 
 #endif
