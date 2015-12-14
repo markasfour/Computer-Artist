@@ -9,9 +9,40 @@
 using namespace std;
 using namespace cv;
 
-const int POPULATION = 10;
+const int POPULATION = 3;		//size of test population
+const int POINT_GUESS = 5;		//# used in guess heuristic
 
-float getFitness (picture curr, Mat mainImage)
+Scalar guessColor(Mat mainImage, Point p)
+{
+	Vec3b bgrMainPic = mainImage.at<Vec3b>(p.x, p.y);
+	return Scalar(bgrMainPic.val[0], bgrMainPic.val[1], bgrMainPic.val[2]);
+}
+
+Point guessPoint(picture curr, Mat mainImage)
+{
+	bool found = false;
+	int trials = 50;
+	while (!found)
+	{
+		int x = rand() % mainImage.rows;
+		int y = rand() % mainImage.cols;
+
+		Vec3b bgrMainPic = mainImage.at<Vec3b>(x, y);
+		Vec3b bgrCurrPic = curr.img.at<Vec3b>(x, y);
+		
+		if (abs(bgrCurrPic.val[0] - bgrMainPic.val[0]) > POINT_GUESS ||
+			abs(bgrCurrPic.val[1] - bgrMainPic.val[1]) > POINT_GUESS ||
+			abs(bgrCurrPic.val[2] - bgrMainPic.val[2]) > POINT_GUESS)
+		{
+			return Point(x, y);
+		}
+		trials--;
+		if (trials == 0)
+			return Point(0, 0);
+	}
+}
+
+float getFitness(picture curr, Mat mainImage)
 {
 	float f = 0.0;
 	for (int x = 0; x < curr.img.rows; x++)
@@ -69,7 +100,7 @@ int main (int argc, char** argv)
 	Mat curModel(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 	bestPicture.img = curModel;
 	bestPicture.fitness = 9999;
-	int lowest = 9999;
+	
 	for (int k = 0; k < 10000; k++)
 	{
 		cout << "Number of shapes = " << k << endl;
@@ -79,25 +110,8 @@ int main (int argc, char** argv)
 			for (int i = 0; i < POPULATION; i++)
 			{
 				current.at(i).fitness = 0;
-				for (int x = 0; x < current.at(i).img.rows; x++)
-				{
-					for (int y = 0; y < current.at(i).img.cols; y++)
-					{
-						Vec3b bgrMainPic = mainImage.at<Vec3b>(x, y);
-						Vec3b bgrCurrPic = current.at(i).img.at<Vec3b>(x, y);
-						
-						current.at(i).fitness += abs(bgrCurrPic.val[0] - bgrMainPic.val[0]);	//b
-						current.at(i).fitness += abs(bgrCurrPic.val[1] - bgrMainPic.val[1]);	//g
-						current.at(i).fitness += abs(bgrCurrPic.val[2] - bgrMainPic.val[2]);	//r
-					}
-				}
+				current.at(i).fitness = getFitness(current.at(i), mainImage);
 				current.at(i).fitness /= (current.at(i).img.rows * current.at(i).img.cols) * 3;
-				//cout << "Fitness = " << current.at(i).fitness << endl;
-				if (current.at(i).fitness < lowest)
-				{
-					lowest = current.at(i).fitness;
-					cout << "NEW LOWEST = " << lowest << endl;
-				}
 				imshow("Evolving Image", current.at(i).img);
 				waitKey(1);
 			}
@@ -114,25 +128,20 @@ int main (int argc, char** argv)
 					bestPic = i;
 				}
 			}
-			cout << "Mutation # = " << n << endl;
-			cout << "bestPic = " << bestPic << endl;
-			cout << "bestFitnes = " << bestFitness << endl;
-			
 
 			//generate new population by mutating the best image
-			cout << "SIZE = " << current.at(bestPic).ellipses.size() << endl;
 			my_ellipse el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
 			for (int i = 0; i < POPULATION; i++) //mutate the population
 			{
 				current.at(i) = current.at(bestPic);
 				if (i != bestPic)
 				{
-					el.pos += Point(rand()%5-5/2,rand()%5-5/2) ; 
-					el.color += Scalar(rand()%10-10/2,rand()%10-10/2,rand()%10-10/2) ;
-					el.size += Size(rand()%5-5/2,rand()%5-5/2) ;
+					el.pos += Point(rand()%15-15/2,rand()%15-15/2) ; 
+					el.color += Scalar(rand()%50-50/2,rand()%50-50/2,rand()%50-50/2) ;
+					el.size += Size(rand()%15-15/2,rand()%15-15/2) ;
 					el.size.width = abs(el.size.width) ;
 					el.size.height = abs(el.size.height) ;
-					el.angle += rand()%5-5/2;
+					el.angle += rand()%15-15/2;
 					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0)) ;
 					bestPicture.img.copyTo(buf) ;																		
 					ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
@@ -157,25 +166,23 @@ int main (int argc, char** argv)
 						imwrite(savePath, bestPicture.img);
 					}
 				}
-				else
-					cout << "NOPE!!!!!!!!!!!!!!!!" << endl;
 				cout << "Best fitness = " << bestFitness << endl;
 			}
 		}
-		for (int i = 0; i < POPULATION; i++) //create new shapes
+		for (int q = 0; q < POPULATION; q++) //create new shapes
 		{
 			Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 			bestPicture.img.copyTo(buf);
-			current.at(i).fitness = bestPicture.fitness;
-			current.at(i).ellipses = bestPicture.ellipses;
+			current.at(q).fitness = bestPicture.fitness;
+			current.at(q).ellipses = bestPicture.ellipses;
 			
 			my_ellipse el(Point(rand() % COLS, rand() % ROWS),
 						  Size(rand()%100+20, rand()%100+20),
 						  Scalar(rand() % 255, rand() % 255, rand() % 255),
 						  rand()%360);
-
-			current.at(i).img = buf;
-			current.at(i).ellipses.push_back(el);
+			ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
+			current.at(q).img = buf;
+			current.at(q).ellipses.push_back(el);
 		}
 	}
 	
