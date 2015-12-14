@@ -10,37 +10,6 @@ using namespace std;
 using namespace cv;
 
 const int POPULATION = 3;		//size of test population
-const int POINT_GUESS = 5;		//# used in guess heuristic
-
-Scalar guessColor(Mat mainImage, Point p)
-{
-	Vec3b bgrMainPic = mainImage.at<Vec3b>(p.x, p.y);
-	return Scalar(bgrMainPic.val[0], bgrMainPic.val[1], bgrMainPic.val[2]);
-}
-
-Point guessPoint(picture curr, Mat mainImage)
-{
-	bool found = false;
-	int trials = 50;
-	while (!found)
-	{
-		int x = rand() % mainImage.rows;
-		int y = rand() % mainImage.cols;
-
-		Vec3b bgrMainPic = mainImage.at<Vec3b>(x, y);
-		Vec3b bgrCurrPic = curr.img.at<Vec3b>(x, y);
-		
-		if (abs(bgrCurrPic.val[0] - bgrMainPic.val[0]) > POINT_GUESS ||
-			abs(bgrCurrPic.val[1] - bgrMainPic.val[1]) > POINT_GUESS ||
-			abs(bgrCurrPic.val[2] - bgrMainPic.val[2]) > POINT_GUESS)
-		{
-			return Point(x, y);
-		}
-		trials--;
-		if (trials == 0)
-			return Point(0, 0);
-	}
-}
 
 float getFitness(picture curr, Mat mainImage)
 {
@@ -159,7 +128,7 @@ int main (int argc, char** argv)
 				{
 					bestPicture = current.at(bestPic);
 					stringstream path;
-					path << k << ".jpg";
+					path << "KyloRen" << k << ".jpg";
 					string savePath = path.str();
 					if (k % 5 == 0)
 					{
@@ -176,9 +145,9 @@ int main (int argc, char** argv)
 			current.at(q).fitness = bestPicture.fitness;
 			current.at(q).ellipses = bestPicture.ellipses;
 			
-			my_ellipse el(Point(rand() % COLS, rand() % ROWS),
+			my_ellipse el(Point(rand()%COLS, rand()%ROWS),
 						  Size(rand()%100+20, rand()%100+20),
-						  Scalar(rand() % 255, rand() % 255, rand() % 255),
+						  Scalar(rand()%255, rand()%255, rand()%255),
 						  rand()%360);
 			ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
 			current.at(q).img = buf;
