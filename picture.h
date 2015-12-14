@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "rectangle.h"
 #include "circle.h"
+#include "ellipse.h"
 
 using namespace std;
 using namespace cv;
@@ -15,6 +16,7 @@ struct picture
 	float fitness;
 	vector <my_rectangle> rectangles;
 	vector <my_circle> circles;
+	vector <my_ellipse> ellipses;
 
 	picture()
 	{
@@ -33,6 +35,12 @@ struct picture
 		img = i;
 		fitness = f;
 		circles = c;
+	}
+	picture(Mat i, float f, vector <my_ellipse> e)
+	{
+		img = i;
+		fitness = f;
+		ellipses = e;
 	}
 };
 

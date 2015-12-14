@@ -3,12 +3,13 @@
 #include <opencv2/opencv.hpp>
 #include "rectangle.h"
 #include "circle.h"
+#include "ellipse.h"
 #include "picture.h"
 
 using namespace std;
 using namespace cv;
 
-const int POPULATION = 5;
+const int POPULATION = 10;
 
 float getFitness (picture curr, Mat mainImage)
 {
@@ -42,9 +43,6 @@ int main (int argc, char** argv)
 	int COLS = mainImage.cols;
 
 	//set up display windows
-	//namedWindow("Original Image", WINDOW_AUTOSIZE);
-	//imshow("Original Image", mainImage);
-	//waitKey(0);		
 	namedWindow("Evolving Image", WINDOW_AUTOSIZE);
 	//set rand seed
 	srand(time(NULL));
@@ -59,35 +57,19 @@ int main (int argc, char** argv)
 		current.at(i).fitness = 0;
 
 		Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
-		//RECTANGLE
-		//int x1 = rand() % COLS, y1 = rand() % ROWS;
-		//int x2 = rand() % COLS, y2 = rand() % ROWS;
-		//while (x2 <= x1	|| y2 <= y1)
-		//{
-		//	x2 = rand() % COLS; 
-		//	y2 = rand() % ROWS;
-		//}
-		//cout << "P1(" << x1 << "," << y1 << ")" << endl;
-		//cout << "P2(" << x2 << "," << y2 << ")" << endl;
-		//my_rectangle R(Point(x1, y1),
-		//			   Point(x2, y2),
-		//			   Scalar(rand() % 255, rand() % 255, rand() % 255));
-		//rectangle(current.at(i).img, R.p1, R.p2, R.color, -1, 8, 0);
-		//current.at(i).rectangles.push_back(R);
-		
-		//CIRCLE
-		my_circle C(Point(rand() % COLS, rand() % ROWS),
-					rand() % 100 + 20,
-					Scalar(rand() % 255, rand() % 255, rand() % 255));
-		circle(current.at(i).img, C.center, C.radius, C.color, -1, 9, 0);
-		current.at(i).circles.push_back(C);
+		my_ellipse el(Point(rand()%COLS, rand()%ROWS),
+					  Size(rand()%100+20, rand()%100+20),
+					  Scalar(rand()%255, rand()%255, rand()%255),
+					  rand()%360);
+		ellipse(current.at(i).img, el.pos, el.size, el.angle, 0, 360, el.color, -1);
+		current.at(i).ellipses.push_back(el);
 	}
 
 	picture bestPicture;
 	Mat curModel(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 	bestPicture.img = curModel;
 	bestPicture.fitness = 9999;
-
+	int lowest = 9999;
 	for (int k = 0; k < 10000; k++)
 	{
 		cout << "Number of shapes = " << k << endl;
@@ -110,14 +92,20 @@ int main (int argc, char** argv)
 					}
 				}
 				current.at(i).fitness /= (current.at(i).img.rows * current.at(i).img.cols) * 3;
-				//imshow("Evolving Image", current.at(i).img);
-				//waitKey(1);
+				//cout << "Fitness = " << current.at(i).fitness << endl;
+				if (current.at(i).fitness < lowest)
+				{
+					lowest = current.at(i).fitness;
+					cout << "NEW LOWEST = " << lowest << endl;
+				}
+				imshow("Evolving Image", current.at(i).img);
+				waitKey(1);
 			}
 
 			float bestFitness = 9999;
 			int bestPic = -1;
 
-			//select best image generated
+			//select best image generated in population
 			for (int i = 0; i < POPULATION; i++)
 			{
 				if (current.at(i).fitness < bestFitness)
@@ -132,41 +120,33 @@ int main (int argc, char** argv)
 			
 
 			//generate new population by mutating the best image
-			//my_rectangle R = current.at(bestPic).rectangles.at(current.at(bestPic).rectangles.size() - 1);
-			my_circle C = current.at(bestPic).circles.at(current.at(bestPic).circles.size() - 1);
-			for (int i = 0; i < POPULATION; i++) //mutate
+			cout << "SIZE = " << current.at(bestPic).ellipses.size() << endl;
+			my_ellipse el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
+			for (int i = 0; i < POPULATION; i++) //mutate the population
 			{
 				current.at(i) = current.at(bestPic);
 				if (i != bestPic)
 				{
-					//RECTANGLE
-					//R.p1 += Point((rand() % 15) - 15/2, (rand() % 15) - 15/2);
-					//R.p2 += Point((rand() % 15) - 15/2, (rand() % 15) - 15/2);
-					//while (R.p2.x <= R.p1.x || R.p2.x >= COLS || R.p2.y <= R.p1.y || R.p2.y >= ROWS)
-					//{
-					//	R.p2 += Point((rand() % 15) - 15/2, (rand() % 15) - 15/2);
-					//}
-					//R.color += Scalar((rand() % 20) - 20/2, (rand() % 20) - 20/2, (rand() % 20) - 20/2);
-					
-					//CIRCLE
-					C.center += Point((rand() % 15) - 15/2, (rand() % 15) - 15/2);
-					C.radius += (rand() % 15) - 15/2;
-					C.color += Scalar((rand() % 30) - 30/2, (rand() % 30) - 30/2, (rand() % 30) - 30/2);
-
+					el.pos += Point(rand()%5-5/2,rand()%5-5/2) ; 
+					el.color += Scalar(rand()%10-10/2,rand()%10-10/2,rand()%10-10/2) ;
+					el.size += Size(rand()%5-5/2,rand()%5-5/2) ;
+					el.size.width = abs(el.size.width) ;
+					el.size.height = abs(el.size.height) ;
+					el.angle += rand()%5-5/2;
 					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0)) ;
 					bestPicture.img.copyTo(buf) ;																		
-					//rectangle(buf , R.p1 , R.p2 , R.color, -1, 8, 0) ;
-					circle(buf, C.center, C.radius, C.color, -1, 8, 0);
+					ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
 					current.at(i).img = buf;
-					//current.at(i).rectangles.at(current.at(i).rectangles.size() - 1) = R;
-					current.at(i).circles.at(current.at(i).circles.size() - 1) = C;
+					current.at(i).ellipses.at(current.at(i).ellipses.size() - 1) = el;
 				}
 			}
 
 			if (n == 99)
 			{
 				//change bestPicture if new picture is an improvement
-				if (bestPicture.fitness > current.at(bestPic).fitness)
+				cout << "Previous best = " << bestPicture.fitness << endl;
+				cout << "Current best = " << current.at(bestPic).fitness << endl;
+				if (bestPicture.fitness >= current.at(bestPic).fitness)
 				{
 					bestPicture = current.at(bestPic);
 					stringstream path;
@@ -177,46 +157,25 @@ int main (int argc, char** argv)
 						imwrite(savePath, bestPicture.img);
 					}
 				}
-				//stringstream path;
-				//path << k << ".jpg";
-				//string savePath = path.str();
-				//if (k % 5 == 0)
-				//{
-				//	imwrite(savePath, bestPicture.img);
-				//}
+				else
+					cout << "NOPE!!!!!!!!!!!!!!!!" << endl;
 				cout << "Best fitness = " << bestFitness << endl;
 			}
 		}
 		for (int i = 0; i < POPULATION; i++) //create new shapes
 		{
-			Mat buf(mainImage.rows, mainImage.cols, CV_8UC3, Scalar(0,0,0));
+			Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 			bestPicture.img.copyTo(buf);
 			current.at(i).fitness = bestPicture.fitness;
-			//current.at(i).rectangles = bestPicture.rectangles;
-			current.at(i).circles = bestPicture.circles;
+			current.at(i).ellipses = bestPicture.ellipses;
 			
-			//RECTANGLES
-			//int x1 = rand() % mainImage.cols, y1 = rand() % mainImage.rows;
-			//int x2 = rand() % mainImage.cols, y2 = rand() % mainImage.rows;
-			//while (x2 <= x1	|| y2 <= y1)
-			//{
-			//	x2 = rand() % mainImage.cols; 
-			//	y2 = rand() % mainImage.rows;
-			//}
-			//my_rectangle R(Point(x1, y1),
-			//		   	   Point(x2, y2),
-			//		   	   Scalar(rand() % 255, rand() % 255, rand() % 255));
-			//rectangle(buf, R.p1, R.p2, R.color, -1, 8, 0);
-			
-			//CIRCLE
-			my_circle C(Point(rand() % COLS, rand() % ROWS),
-						rand() % 100 + 20,
-						Scalar(rand() % 255, rand() % 255, rand() % 255));
+			my_ellipse el(Point(rand() % COLS, rand() % ROWS),
+						  Size(rand()%100+20, rand()%100+20),
+						  Scalar(rand() % 255, rand() % 255, rand() % 255),
+						  rand()%360);
 
 			current.at(i).img = buf;
-			//current.at(i).rectangles.push_back(R);
-			current.at(i).circles.push_back(C);
-			//cout << "# of rects = " << current.at(i).rectangles.size() << endl;
+			current.at(i).ellipses.push_back(el);
 		}
 	}
 	
