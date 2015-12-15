@@ -5,7 +5,7 @@ Duplicate any image using a genetic, hill-climbing algorithm with OpenCV!
 
 Evolving Image | Original Image
 :-------------:|:--------------:
-![Alt Text](https://i.imgur.com/Vp8tnZe.gif) | ![img](https://i.imgur.com/ZyrVSLS.jpg)
+![GIF](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/StormtrooperEvolution.gif) | ![img](https://i.imgur.com/ZyrVSLS.jpg)
 
 ## Install & Run
 ### Dependencies
