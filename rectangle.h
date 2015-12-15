@@ -8,33 +8,31 @@ using namespace cv;
 
 struct my_rectangle
 {
-	Point p1;
-	Point p2;
+	Point pos;
+	Size size;
 	Scalar color;
 
 	my_rectangle()
 	{
-		p1 = Point(0, 0);
-		p2 = Point(0, 0);
+		pos = Point(0, 0);
+		size = Size(0, 0);
 		color = Scalar(0, 0, 0);
 	}
-	my_rectangle(Point a, Point b, Scalar c)
+	my_rectangle(Point x)
 	{
-		p1 = a;
-		p2 = b; 
-		color = c;
-	}
-	my_rectangle(Point a, int w, int l)
-	{
-		p1 = a;
-		int x = -1;
-		while (x <= a.x)
-			x = rand() % int(1.5 * l);
-		int y = -1;
-		while (x <= a.y)
-			y = rand() % int(1.5 * w);
-		p2 = Point(x, y);
+		pos = x;
+		size = Size(rand()%100+20, rand()%100+20);
 		color = Scalar(rand()%255,rand()%255,rand()%255);
+	}
+
+	void mutate()
+	{
+		pos += Point(rand()%15-15/2,rand()%15-15/2) ; 
+		color += Scalar(rand()%50-50/2,rand()%50-50/2,rand()%50-50/2) ;
+		size += Size(rand()%15-15/2,rand()%15-15/2) ;
+		size.width = abs(size.width) ;
+		size.height = abs(size.height) ;
+
 	}
 };
 

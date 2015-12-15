@@ -127,6 +127,12 @@ int main (int argc, char** argv)
 			circle(current.at(i).img, C.center, C.radius, C.color, -1);
 			current.at(i).circles.push_back(C);
 		}
+		else if (RECTANGLE)
+		{
+			my_rectangle R(Point(rand()%COLS, rand()%ROWS));
+			rectangle(current.at(i).img, Rect(R.pos, R.size), R.color, -1);
+			current.at(i).rectangles.push_back(R);
+		}
 	}
 
 	picture bestPicture;
@@ -165,11 +171,14 @@ int main (int argc, char** argv)
 			//generate new population by mutating the best image
 			my_ellipse el;
 			my_circle C;
+			my_rectangle R;
 			if (ELLIPSE)
 				el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
 			else if (CIRCLE)
 				C = current.at(bestPic).circles.at(current.at(bestPic).circles.size() - 1);
-			
+			else if (RECTANGLE)
+				R = current.at(bestPic).rectangles.at(current.at(bestPic).rectangles.size() -1);
+
 			for (int i = 0; i < POPULATION; i++) //mutate the population
 			{
 				current.at(i) = current.at(bestPic);
@@ -179,6 +188,9 @@ int main (int argc, char** argv)
 						el.mutate();
 					else if (CIRCLE)
 						C.mutate();
+					else if (RECTANGLE)
+						R.mutate();
+
 					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 					bestPicture.img.copyTo(buf);	
 					if (ELLIPSE)
@@ -192,6 +204,12 @@ int main (int argc, char** argv)
 						circle(buf, C.center, C.radius, C.color, -1);
 						current.at(i).img = buf;
 						current.at(i).circles.at(current.at(i).circles.size() - 1) = C;
+					}
+					else if (RECTANGLE)
+					{
+						rectangle(buf, Rect(R.pos, R.size), R.color, -1);
+						current.at(i).img = buf;
+						current.at(i).rectangles.at(current.at(i).rectangles.size() - 1) = R;
 					}
 				}
 			}
@@ -243,10 +261,17 @@ int main (int argc, char** argv)
 				current.at(q).img = buf;
 				current.at(q).circles.push_back(C);
 			}
+			else if (RECTANGLE)
+			{
+				current.at(q).rectangles = bestPicture.rectangles;
+				my_rectangle R(Point(rand()%COLS, rand()%ROWS));
+				rectangle(buf, Rect(R.pos, R.size), R.color, -1);
+				current.at(q).img = buf;
+				current.at(q).rectangles.push_back(R);
+			}
 		}
 	}
 	
-	waitKey(0);
+	cout << "Done!" << endl;
 	return 0;
-
 }
