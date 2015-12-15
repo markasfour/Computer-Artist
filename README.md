@@ -2,6 +2,7 @@
 Duplicate any image using a genetic, hill-climbing algorithm with OpenCV!
 
 **Example**
+
 Evolving Image | Original Image
 :-------------:|:--------------:
 ![img](https://i.imgur.com/Vp8tnZe.gifv) | ![img](https://i.imgur.com/ZyrVSLS.jpg)
@@ -13,11 +14,17 @@ Ensure your system has this installed prior to running this program.
 
 ### Build
 Run the following in a terminal:
-```git clone http://www.github.com/markasfour/Computer-Artist.git```
+
+```
+git clone http://www.github.com/markasfour/Computer-Artist.git
+```
 
 Enter the downloaded directory, build the program by running the following:
-```chmod u+x ./build.sh```
-```./build.sh``` 
+
+``` 
+chmod u+x ./build.sh
+./build.sh
+``` 
 
 After a successful build, you can now run the program!
 
