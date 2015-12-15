@@ -10,7 +10,11 @@ using namespace std;
 using namespace cv;
 
 const int POPULATION = 3;		//size of test population
+const int MUTATIONS = 100;		//number of mutations per generation
+const int GENERATIONS = 10000;	//number of generations
 
+//returns the total difference in color between the two images
+//the less, the better
 float getFitness(picture curr, Mat mainImage)
 {
 	float f = 0.0;
@@ -29,6 +33,18 @@ float getFitness(picture curr, Mat mainImage)
 	return f;
 }
 
+//returns the main file name without the extension
+string getFileName(string x)
+{
+	int i;
+	for(i = 0; i < x.size(); i++)
+	{
+		if (x.at(i) == '.')
+			break;
+	}
+	return x.erase(i, x.size() - i);
+}
+
 int main (int argc, char** argv)
 {
 	//get main image
@@ -38,7 +54,7 @@ int main (int argc, char** argv)
 		cout << "Could not open image" << endl;
 		return 0;
 	}
-	
+	string FILENAME = getFileName(argv[1]);	
 	int ROWS = mainImage.rows;
 	int COLS = mainImage.cols;
 
@@ -69,11 +85,12 @@ int main (int argc, char** argv)
 	Mat curModel(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 	bestPicture.img = curModel;
 	bestPicture.fitness = 9999;
-	
-	for (int k = 0; k < 10000; k++)
+
+	//start genetic hill climbing 
+	for (int k = 0; k < GENERATIONS; k++)
 	{
-		cout << "Number of shapes = " << k << endl;
-		for (int n = 0; n < 100; n++)
+		cout << "Generation #" << k << endl;
+		for (int n = 0; n < MUTATIONS; n++)
 		{
 			//calculate image fitness level for all in population
 			for (int i = 0; i < POPULATION; i++)
@@ -119,7 +136,7 @@ int main (int argc, char** argv)
 				}
 			}
 
-			if (n == 99)
+			if (n == MUTATIONS - 1) //after last mutation
 			{
 				//change bestPicture if new picture is an improvement
 				cout << "Previous best = " << bestPicture.fitness << endl;
@@ -128,10 +145,15 @@ int main (int argc, char** argv)
 				{
 					bestPicture = current.at(bestPic);
 					stringstream path;
-					path << "KyloRen" << k << ".jpg";
-					string savePath = path.str();
-					if (k % 5 == 0)
+					if (k % 5 == 0)	//save image to computer
 					{
+						if (k < 10)
+							path << FILENAME << "000" << k << ".jpg";
+						else if (k < 100)
+							path << FILENAME << "00" << k << ".jpg";
+						else if (k < 1000)
+							path << FILENAME << "0" << k << ".jpg";
+						string savePath = path.str();
 						imwrite(savePath, bestPicture.img);
 					}
 				}
