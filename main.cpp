@@ -45,6 +45,33 @@ string getFileName(string x)
 	return x.erase(i, x.size() - i);
 }
 
+//determines shape to be used 
+string getShape(int argc, char** argv)
+{
+	if (argc != 3) //not provided in command line
+	{
+		int x = rand() % 3;
+		if (x == 0)
+			return "ellipse";
+		else if (x == 1)
+			return "circle";
+		else if (x == 2)
+			return "rectangle";
+	}
+	else
+	{
+		cout << argv[2] << endl;
+		if (string(argv[2]) == "E")
+			return "ellipse";
+		else if (string(argv[2]) == "C")
+			return "circle";
+		else if (string(argv[2]) == "R")
+			return "rectangle";
+		else
+			return "bad";
+	}
+}
+
 int main (int argc, char** argv)
 {
 	//get main image
@@ -57,6 +84,21 @@ int main (int argc, char** argv)
 	string FILENAME = getFileName(argv[1]);	
 	int ROWS = mainImage.rows;
 	int COLS = mainImage.cols;
+	
+	//determine shape to use
+	bool ELLIPSE = false, CIRCLE = false, RECTANGLE = false;
+	string SHAPE = getShape(argc, argv);
+	if (SHAPE == "bad")
+	{
+		cout << "Invalid shape input. Use E, C, or R." << endl;
+		return 0;
+	}
+	else if (SHAPE == "ellipse")
+		ELLIPSE = true;
+	else if (SHAPE == "circle")
+		CIRCLE = true;
+	else if (SHAPE == "rectangle")
+		RECTANGLE = true;
 
 	//set up display windows
 	namedWindow("Evolving Image", WINDOW_AUTOSIZE);
@@ -73,12 +115,18 @@ int main (int argc, char** argv)
 		current.at(i).fitness = 0;
 
 		Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
-		my_ellipse el(Point(rand()%COLS, rand()%ROWS),
-					  Size(rand()%100+20, rand()%100+20),
-					  Scalar(rand()%255, rand()%255, rand()%255),
-					  rand()%360);
-		ellipse(current.at(i).img, el.pos, el.size, el.angle, 0, 360, el.color, -1);
-		current.at(i).ellipses.push_back(el);
+		if (ELLIPSE)
+		{
+			my_ellipse el(Point(rand()%COLS, rand()%ROWS));
+			ellipse(current.at(i).img, el.pos, el.size, el.angle, 0, 360, el.color, -1);
+			current.at(i).ellipses.push_back(el);
+		}
+		else if (CIRCLE)
+		{
+			my_circle C(Point(rand()%COLS, rand()%ROWS));
+			circle(current.at(i).img, C.center, C.radius, C.color, -1);
+			current.at(i).circles.push_back(C);
+		}
 	}
 
 	picture bestPicture;
@@ -101,7 +149,6 @@ int main (int argc, char** argv)
 				imshow("Evolving Image", current.at(i).img);
 				waitKey(1);
 			}
-
 			float bestFitness = 9999;
 			int bestPic = -1;
 
@@ -114,28 +161,41 @@ int main (int argc, char** argv)
 					bestPic = i;
 				}
 			}
-
+			
 			//generate new population by mutating the best image
-			my_ellipse el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
+			my_ellipse el;
+			my_circle C;
+			if (ELLIPSE)
+				el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
+			else if (CIRCLE)
+				C = current.at(bestPic).circles.at(current.at(bestPic).circles.size() - 1);
+			
 			for (int i = 0; i < POPULATION; i++) //mutate the population
 			{
 				current.at(i) = current.at(bestPic);
 				if (i != bestPic)
 				{
-					el.pos += Point(rand()%15-15/2,rand()%15-15/2) ; 
-					el.color += Scalar(rand()%50-50/2,rand()%50-50/2,rand()%50-50/2) ;
-					el.size += Size(rand()%15-15/2,rand()%15-15/2) ;
-					el.size.width = abs(el.size.width) ;
-					el.size.height = abs(el.size.height) ;
-					el.angle += rand()%15-15/2;
-					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0)) ;
-					bestPicture.img.copyTo(buf) ;																		
-					ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
-					current.at(i).img = buf;
-					current.at(i).ellipses.at(current.at(i).ellipses.size() - 1) = el;
+					if (ELLIPSE)
+						el.mutate();
+					else if (CIRCLE)
+						C.mutate();
+					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
+					bestPicture.img.copyTo(buf);	
+					if (ELLIPSE)
+					{
+						ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
+						current.at(i).img = buf;
+						current.at(i).ellipses.at(current.at(i).ellipses.size() - 1) = el;
+					}
+					else if (CIRCLE)
+					{
+						circle(buf, C.center, C.radius, C.color, -1);
+						current.at(i).img = buf;
+						current.at(i).circles.at(current.at(i).circles.size() - 1) = C;
+					}
 				}
 			}
-
+			
 			if (n == MUTATIONS - 1) //after last mutation
 			{
 				//change bestPicture if new picture is an improvement
@@ -153,6 +213,8 @@ int main (int argc, char** argv)
 							path << FILENAME << "00" << k << ".jpg";
 						else if (k < 1000)
 							path << FILENAME << "0" << k << ".jpg";
+						else
+							path << FILENAME << k << ".jpg";
 						string savePath = path.str();
 						imwrite(savePath, bestPicture.img);
 					}
@@ -165,15 +227,22 @@ int main (int argc, char** argv)
 			Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 			bestPicture.img.copyTo(buf);
 			current.at(q).fitness = bestPicture.fitness;
-			current.at(q).ellipses = bestPicture.ellipses;
-			
-			my_ellipse el(Point(rand()%COLS, rand()%ROWS),
-						  Size(rand()%100+20, rand()%100+20),
-						  Scalar(rand()%255, rand()%255, rand()%255),
-						  rand()%360);
-			ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
-			current.at(q).img = buf;
-			current.at(q).ellipses.push_back(el);
+			if (ELLIPSE)
+			{
+				current.at(q).ellipses = bestPicture.ellipses;
+				my_ellipse el(Point(rand()%COLS, rand()%ROWS));
+				ellipse(buf, el.pos, el.size, el.angle, 0, 360, el.color, -1);
+				current.at(q).img = buf;
+				current.at(q).ellipses.push_back(el);
+			}
+			else if (CIRCLE)
+			{
+				current.at(q).circles = bestPicture.circles;
+				my_circle C(Point(rand()%COLS, rand()%ROWS));
+				circle(buf, C.center, C.radius, C.color, -1);
+				current.at(q).img = buf;
+				current.at(q).circles.push_back(C);
+			}
 		}
 	}
 	
