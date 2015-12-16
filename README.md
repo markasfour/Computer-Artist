@@ -7,7 +7,7 @@ Evolving Image | Original Image
 :-------------:|:--------------:
 ![GIF](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/StormtrooperEvolution.gif) | ![Stormtooper Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Stormtrooper.jpg)
 
-[Check out more samples in the gallery!](https://github.com/markasfour/Computer-Artist#gallery)
+[*Check out more samples in the gallery below!*](https://github.com/markasfour/Computer-Artist#gallery)
 
 ## Install & Run
 ### Dependencies
@@ -64,6 +64,18 @@ Commenting out the code could reduce the run time.
 
 The program saves every 5th image to the computer if the constructed image is an improvement compared to the previous.
 Modifying this segment to save less often or never at all can also reduce the run time.
+
+### Analysis
+In general, the computational runtime for this program would be:
+```
+O(G * (M * ((P * (X * Y)) + P + (P - 1)) + P))
+```
+Where `G = number of generations`, `M = number of Mutations`, `P = size of Population`, `X = the height of the image`, and `Y = the width of the image`.
+
+Or in simpler terms, the runtime would roughly be:
+```
+O(G * M * P * X * Y);
+```
 
 # Gallery
 
