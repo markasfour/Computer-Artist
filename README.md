@@ -7,6 +7,8 @@ Evolving Image | Original Image
 :-------------:|:--------------:
 ![GIF](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/StormtrooperEvolution.gif) | ![Stormtooper Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Stormtrooper.jpg)
 
+[Check out more samples in the gallery!](https://github.com/markasfour/Computer-Artist#gallery)
+
 ## Install & Run
 ### Dependencies
 OpenCV (Open Source Computer Vision) version 3.0 is the only dependency for this project.
@@ -68,7 +70,5 @@ Modifying this segment to save less often or never at all can also reduce the ru
 Generated Image | Original Image
 :--------------:|:---------------:
 ![Kylo Ren Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/KyloRen9930.jpg) | ![Kylo Ren Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/KyloRen.jpg)
-:--------------:|:---------------:
 ![Mona Lisa Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/MonaLisa9980.jpg) | ![Mona Lisa Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/MonaLisa.jpg)
-:--------------:|:---------------:
 ![Goku Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Goku9995.jpg) | ![Goku Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Goku.jpg)
