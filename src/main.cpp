@@ -58,7 +58,7 @@ string getShape(int argc, char** argv)
 			return "circle";
 		else if (x == 2)
 			return "rectangle";
-		else if (x == 4)
+		else if (x == 3)
 			return "square";
 	}
 	else
@@ -79,6 +79,9 @@ string getShape(int argc, char** argv)
 
 int main (int argc, char** argv)
 {
+	//set rand seed
+	srand(time(NULL));
+	
 	//get main image
 	Mat mainImage = imread(argv[1], IMREAD_UNCHANGED);
 	if (!mainImage.data)
@@ -109,8 +112,6 @@ int main (int argc, char** argv)
 
 	//set up display windows
 	namedWindow("Evolving Image", WINDOW_AUTOSIZE);
-	//set rand seed
-	srand(time(NULL));
 	
 	vector<picture> current(POPULATION);
 
@@ -152,7 +153,8 @@ int main (int argc, char** argv)
 	Mat curModel(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 	bestPicture.img = curModel;
 	bestPicture.fitness = 9999;
-
+	float worstFitness = 9999;
+	
 	//start genetic hill climbing 
 	for (int k = 0; k < GENERATIONS; k++)
 	{
@@ -179,6 +181,8 @@ int main (int argc, char** argv)
 					bestFitness = current.at(i).fitness;
 					bestPic = i;
 				}
+				if (k == 0)
+					worstFitness = bestFitness;
 			}
 			
 			//generate new population by mutating the best image
@@ -241,8 +245,8 @@ int main (int argc, char** argv)
 			if (n == MUTATIONS - 1) //after last mutation
 			{
 				//change bestPicture if new picture is an improvement
-				cout << "Previous best = " << bestPicture.fitness << endl;
-				cout << "Current best = " << current.at(bestPic).fitness << endl;
+				cout << "Previous best = " << 100*(1-(bestPicture.fitness/worstFitness)) << "%" << endl;
+				cout << "Current best = " << 100*(1-(current.at(bestPic).fitness/worstFitness)) << "%" << endl;
 				if (bestPicture.fitness >= current.at(bestPic).fitness)
 				{
 					bestPicture = current.at(bestPic);
@@ -261,7 +265,7 @@ int main (int argc, char** argv)
 						imwrite(savePath, bestPicture.img);
 					}
 				}
-				cout << "Best fitness = " << bestFitness << endl;
+				cout << "Best fitness = " << 100*(1-(bestFitness/worstFitness)) << "%" << endl;
 			}
 		}
 		for (int q = 0; q < POPULATION; q++) //create new shapes
