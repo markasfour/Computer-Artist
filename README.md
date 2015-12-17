@@ -84,3 +84,4 @@ Generated Image | Original Image
 ![Kylo Ren Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/KyloRen9930.jpg) | ![Kylo Ren Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/KyloRen.jpg)
 ![Mona Lisa Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/MonaLisa9980.jpg) | ![Mona Lisa Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/MonaLisa.jpg)
 ![Goku Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Goku9995.jpg) | ![Goku Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/Goku.jpg)
+![Goku Generated](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/USA_Flag9995.jpg) | ![Goku Original](https://github.com/markasfour/Computer-Artist/blob/master/Gallery/USA_Flag.jpg)
