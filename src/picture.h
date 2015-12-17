@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include "square.h"
 #include "rectangle.h"
 #include "circle.h"
 #include "ellipse.h"
@@ -14,6 +15,7 @@ struct picture
 {
 	Mat img;
 	float fitness;
+	vector <my_square> squares;
 	vector <my_rectangle> rectangles;
 	vector <my_circle> circles;
 	vector <my_ellipse> ellipses;
@@ -24,6 +26,12 @@ struct picture
 		img = i;
 		fitness = -1;
 	};
+	picture(Mat i, float f, vector <my_square> s)
+	{
+		img = i;
+		fitness = f;
+		squares = s;
+	}
 	picture(Mat i, float f, vector <my_rectangle> r)
 	{
 		img = i;

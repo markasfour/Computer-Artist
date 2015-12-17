@@ -4,6 +4,7 @@
 #include "rectangle.h"
 #include "circle.h"
 #include "ellipse.h"
+#include "square.h"
 #include "picture.h"
 
 using namespace std;
@@ -50,13 +51,15 @@ string getShape(int argc, char** argv)
 {
 	if (argc != 3) //not provided in command line
 	{
-		int x = rand() % 3;
+		int x = rand() % 4;
 		if (x == 0)
 			return "ellipse";
 		else if (x == 1)
 			return "circle";
 		else if (x == 2)
 			return "rectangle";
+		else if (x == 4)
+			return "square";
 	}
 	else
 	{
@@ -67,6 +70,8 @@ string getShape(int argc, char** argv)
 			return "circle";
 		else if (string(argv[2]) == "R")
 			return "rectangle";
+		else if (string(argv[2]) == "S")
+			return "square";
 		else
 			return "bad";
 	}
@@ -86,11 +91,11 @@ int main (int argc, char** argv)
 	int COLS = mainImage.cols;
 	
 	//determine shape to use
-	bool ELLIPSE = false, CIRCLE = false, RECTANGLE = false;
+	bool ELLIPSE = false, CIRCLE = false, RECTANGLE = false, SQUARE = false;
 	string SHAPE = getShape(argc, argv);
 	if (SHAPE == "bad")
 	{
-		cout << "Invalid shape input. Use E, C, or R." << endl;
+		cout << "Invalid shape input. Use E, C, R, or S." << endl;
 		return 0;
 	}
 	else if (SHAPE == "ellipse")
@@ -99,6 +104,8 @@ int main (int argc, char** argv)
 		CIRCLE = true;
 	else if (SHAPE == "rectangle")
 		RECTANGLE = true;
+	else if (SHAPE == "square")
+		SQUARE = true;
 
 	//set up display windows
 	namedWindow("Evolving Image", WINDOW_AUTOSIZE);
@@ -132,6 +139,12 @@ int main (int argc, char** argv)
 			my_rectangle R(Point(rand()%COLS, rand()%ROWS));
 			rectangle(current.at(i).img, Rect(R.pos, R.size), R.color, -1);
 			current.at(i).rectangles.push_back(R);
+		}
+		else if (SQUARE)
+		{
+			my_square S(Point(rand()%COLS, rand()%ROWS));
+			rectangle(current.at(i).img, Rect(S.pos, S.size), S.color, -1);
+			current.at(i).squares.push_back(S);
 		}
 	}
 
@@ -172,12 +185,15 @@ int main (int argc, char** argv)
 			my_ellipse el;
 			my_circle C;
 			my_rectangle R;
+			my_square S;
 			if (ELLIPSE)
 				el = current.at(bestPic).ellipses.at(current.at(bestPic).ellipses.size() - 1);
 			else if (CIRCLE)
 				C = current.at(bestPic).circles.at(current.at(bestPic).circles.size() - 1);
 			else if (RECTANGLE)
-				R = current.at(bestPic).rectangles.at(current.at(bestPic).rectangles.size() -1);
+				R = current.at(bestPic).rectangles.at(current.at(bestPic).rectangles.size() - 1);
+			else if (SQUARE)
+				S = current.at(bestPic).squares.at(current.at(bestPic).squares.size() - 1);
 
 			for (int i = 0; i < POPULATION; i++) //mutate the population
 			{
@@ -190,6 +206,8 @@ int main (int argc, char** argv)
 						C.mutate();
 					else if (RECTANGLE)
 						R.mutate();
+					else if (SQUARE)
+						S.mutate();
 
 					Mat buf(ROWS, COLS, CV_8UC3, Scalar(0,0,0));
 					bestPicture.img.copyTo(buf);	
@@ -210,6 +228,12 @@ int main (int argc, char** argv)
 						rectangle(buf, Rect(R.pos, R.size), R.color, -1);
 						current.at(i).img = buf;
 						current.at(i).rectangles.at(current.at(i).rectangles.size() - 1) = R;
+					}
+					else if (SQUARE)
+					{
+						rectangle(buf, Rect(S.pos, S.size), S.color, -1);
+						current.at(i).img = buf;
+						current.at(i).squares.at(current.at(i).squares.size() - 1) = S;
 					}
 				}
 			}
@@ -268,6 +292,14 @@ int main (int argc, char** argv)
 				rectangle(buf, Rect(R.pos, R.size), R.color, -1);
 				current.at(q).img = buf;
 				current.at(q).rectangles.push_back(R);
+			}
+			else if (SQUARE)
+			{
+				current.at(q).squares = bestPicture.squares;
+				my_square S(Point(rand()%COLS, rand()%ROWS));
+				rectangle(buf, Rect(S.pos, S.size), S.color, -1);
+				current.at(q).img = buf;
+				current.at(q).squares.push_back(S);
 			}
 		}
 	}
