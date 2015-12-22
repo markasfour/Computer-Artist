@@ -46,6 +46,8 @@ Use `C` for `Circles`.
 
 Use `R` for `Rectangles`.
 
+Use `S` for `Squares`.
+
 If no letter is passed, the program will randomly choose a shape. 
 
 ## Running Time
